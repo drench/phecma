@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require 'rkelly'
+require './php_visitor.rb'
+
+parser = RKelly::Parser.new
+ast    = parser.parse(STDIN.read)
+print "<?php\n" + ast.to_php + "\n?>\n"
