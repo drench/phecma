@@ -1,5 +1,10 @@
 # Warning: nowhere near complete!
 # Large portions are still the same as ECMAVisitor!
+
+$SYMBOLS = {
+    'print' => 'echo'
+}
+
 module RKelly
     module Nodes
         class Node
@@ -50,8 +55,11 @@ module RKelly
             end
 
             def visit_ResolveNode(o)
-                # FIXME this might be a function name or other built-in
-                '$' + o.value
+                if $SYMBOLS.has_key?(o.value)
+                    return $SYMBOLS[o.value]
+                else
+                    return '$' + o.value # FIXME add to symbol table?
+                end
             end
 
             def visit_PostfixNode(o)
@@ -92,6 +100,7 @@ module RKelly
             end
 
             def visit_FunctionDeclNode(o)
+                $SYMBOLS[o.value] = o.value
                 "#{indent}function #{o.value}(" +
                     "#{o.arguments.map { |x| x.accept(self) }.join(', ')})" +
                     "#{o.function_body.accept(self)}"
@@ -131,11 +140,11 @@ module RKelly
             end
 
             def visit_DotAccessorNode(o)
-                "#{o.value.accept(self)}.#{o.accessor}"
+                "#{o.value.accept(self)}->#{o.accessor}"
             end
 
             def visit_ThisNode(o)
-                "this"
+                "$this"
             end
 
             def visit_BitwiseNotNode(o)
@@ -143,7 +152,7 @@ module RKelly
             end
 
             def visit_DeleteNode(o)
-                "delete #{o.value.accept(self)}"
+                "unset(#{o.value.accept(self)})" # FIXME value is "$x->v" (wrong)
             end
 
             def visit_ArrayNode(o)

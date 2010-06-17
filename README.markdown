@@ -43,20 +43,25 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
 
 * ## Current state
 
-    I've only put an hour or two into this so far, and only the most basic
-    code will compile. Here's some JS source:
+    Only the most basic code will compile right now. Here's some JS source:
 
         var one = function () { return 1; };
         var two = function () {
             var t = 2;
             return t;
         };
-        
+
+        var x = { a: 1, b: "2", c: false };
+
+        function hello () {
+            print("hello");
+        }
+
         try {
             var eins = one();
             var zwei = two();
             var drei = eins + zwei;
-        
+
             if (drei > 1) {
                 drei *= -1;
             }
@@ -65,7 +70,7 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
             }
         }
         catch (err) {
-            // whatever
+            hello();
         }
 
     This is what it looks like when piped through phecma right now:
@@ -78,6 +83,14 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
           $t = 2;
           return($t);
         };
+        $x = array(
+          'a' => 1,
+          'b' => "2",
+          'c' => false
+        );
+        function hello(){
+          echo("hello");
+        }
         try {
           $eins = $one();
           $zwei = $two();
@@ -88,11 +101,12 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
             $drei = $drei * 2;
           }
         } catch($err) {
-        
+          hello();
         }
         ?>
 
     Yes, that's PHP 5.3's anonymous function syntax, which probably means
-    you can't use this yet. So it may not yet be useful (there's not even
-    an equivalent of "print" or "echo" yet!), but I think this has potential.
+    you can't use this yet (though regular old functions should work fine).
+    It may not yet be all that useful (despite rudimentary support for
+    print()/echo() now), but I think this has potential.
     And you?
