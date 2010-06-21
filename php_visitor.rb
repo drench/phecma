@@ -28,7 +28,11 @@ module RKelly
             end
 
             def visit_ConstStatementNode(o)
-                "const #{o.value.map { |x| x.accept(self) }.join(', ')};"
+                # FIXME PHP constants are global; JS too?
+                o.value.map { |x| x.accept(self) }.map { |x|
+                    m = x.match(/^\s*(\S+)\s+=\s+(.+)$/)
+                    "define('#{m[1]}', #{m[2]})"
+                }.join(";\n") + ';'
             end
 
             def visit_VarDeclNode(o)
@@ -310,7 +314,8 @@ module RKelly
             end
 
             def visit_ForInNode(o)
-                "for(#{o.left.accept(self)} in #{o.right.accept(self)}) " +
+                "foreach (#{o.right.accept(self)} as " +
+                    "$#{o.left.accept(self)}) " +
                     "#{o.value.accept(self)}"
             end
 
