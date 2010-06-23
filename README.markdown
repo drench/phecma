@@ -43,70 +43,34 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
 
 * ## Current state
 
-    Only the most basic code will compile right now. Here's some JS source:
+    Though only basic code will work (meaning many of ECMAScript's cool
+    functional programming features are still missing), it may be enough
+    to be useful.
 
-        var one = function () { return 1; };
-        var two = function () {
-            var t = 2;
-            return t;
-        };
+    I'm beginning to implement the http://commonjs.org/ standards,
+    starting with XMLHttpRequest, which is far enough along to actually
+    make requests, assuming your PHP installation has the curl library.
 
-        var x = { a: 1, b: "2", c: false };
+    Here's a sample:
 
-        function hello () {
-            print("hello");
-        }
+        var req = require('xhr').XMLHttpRequest;
+        req.defaultSettings.host = 'http://github.com/';
+        var client = req();
+        print(client.open('GET', 'drench/phecma').send().responseText);
 
-        try {
-            var eins = one();
-            var zwei = two();
-            var drei = eins + zwei;
-
-            if (drei > 1) {
-                drei *= -1;
-            }
-            else {
-                drei = drei * 2;
-            }
-        }
-        catch (err) {
-            hello();
-        }
-
-    This is what it looks like when piped through phecma right now:
+    This is what it looks like when piped through phecma:
 
         <?php
-        $one = function() {
-          return(1);
-        };
-        $two = function() {
-          $t = 2;
-          return($t);
-        };
-        $x = array(
-          'a' => 1,
-          'b' => "2",
-          'c' => false
-        );
-        function hello(){
-          echo("hello");
-        }
-        try {
-          $eins = $one();
-          $zwei = $two();
-          $drei = $eins + $zwei;
-          if($drei > 1) {
-            $drei *= -1;
-          } else {
-            $drei = $drei * 2;
-          }
-        } catch($err) {
-          hello();
-        }
+        require_once('./php-lib/commonjs.php');
+        $req = CommonJS::_require('xhr')->XMLHttpRequest;
+        $req->defaultSettings->host = 'http://github.com/';
+        $client = $req();
+        echo($client->open('GET', 'drench/phecma')->send()->responseText);
         ?>
 
-    Yes, that's PHP 5.3's anonymous function syntax, which probably means
-    you can't use this yet (though regular old functions should work fine).
-    It may not yet be all that useful (despite rudimentary support for
-    print()/echo() now), but I think this has potential.
+    Most of the action is happening inside the commonjs PHP classes.
+
+    The generated code also depends on features that only exist in PHP 5.3+
+    (anonymous functions), which I know limits its utility.
+    But I think this has potential.
     And you?

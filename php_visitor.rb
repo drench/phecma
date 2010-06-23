@@ -2,7 +2,8 @@
 # Large portions are still the same as ECMAVisitor!
 
 $SYMBOLS = {
-    'print' => 'echo'
+    'print' => 'echo',
+    'require' => 'CommonJS::_require'
 }
 
 module RKelly
