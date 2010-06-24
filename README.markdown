@@ -56,7 +56,9 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
         var req = require('xhr').XMLHttpRequest;
         req.defaultSettings.host = 'http://github.com/';
         var client = req();
+        client.getRequestHeader('Referer', 'http://example.com/');
         print(client.open('GET', 'drench/phecma').send().responseText);
+        print(client.getResponseHeader('Server'));
 
     This is what it looks like when piped through phecma:
 
@@ -65,7 +67,9 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
         $req = CommonJS::_require('xhr')->XMLHttpRequest;
         $req->defaultSettings->host = 'http://github.com/';
         $client = $req();
+        $client->setRequestHeader('Referer', 'http://example.com/');
         echo($client->open('GET', 'drench/phecma')->send()->responseText);
+        echo($client->getResponseHeader('Server'));
         ?>
 
     Most of the action is happening inside the commonjs PHP classes.

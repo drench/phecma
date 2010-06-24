@@ -47,8 +47,12 @@ class CommonJS_xhr_client {
         return $this->request->send();
     }
 
+    public function setRequestHeader ($header, $value) {
+        return $this->request->setRequestHeader($header, $value);
+    }
+
     public function getResponseHeader ($header) {
-        return $this->request->getResponseHeader($header); // FIXME doesn't work
+        return $this->request->getResponseHeader($header);
     }
 }
 
@@ -78,6 +82,8 @@ class CommonJS_xhr_request {
     }
 
     public function setRequestHeader ($header, $value) {
+// FIXME : not doing the required checks from:
+// http://wiki.commonjs.org/wiki/HTTP_Client/B#setRequestHeader.28.29
         $this->xheaders[$header] = $value;
     }
 
