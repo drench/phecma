@@ -47,9 +47,10 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
     functional programming features are still missing), it may be enough
     to be useful.
 
-    I'm beginning to implement the http://commonjs.org/ standards,
-    starting with XMLHttpRequest, which is far enough along to actually
-    make requests, assuming your PHP installation has the curl library.
+    I'm beginning to implement the http://commonjs.org/ standards.
+
+    XMLHttpRequest is far enough along to actually make requests,
+    assuming your PHP installation has the curl library.
 
     Here's a sample:
 
@@ -70,6 +71,32 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
         $client->setRequestHeader('Referer', 'http://example.com/');
         echo($client->open('GET', 'drench/phecma')->send()->responseText);
         echo($client->getResponseHeader('Server'));
+        ?>
+
+    Many of the filesystem operations work now too. Sample input:
+
+        var fs = require('fs');
+
+        if (fs.isReadable('/etc/hosts')) {
+            etchosts = fs.read('/etc/hosts');
+
+            fs.open('/tmp/fstest', 'w').write("some stuff\n");
+            fs.open('/tmp/fstest', 'a').write("more stuff\n");
+
+            fs.copy('/etc/hosts', '/tmp/hosts');
+        }
+
+    And translated to PHP:
+
+        <?php
+        require_once('./php-lib/commonjs.php');
+        $fs = CommonJS::_require('fs');
+        if($fs->isReadable('/etc/hosts')) {
+          $etchosts = $fs->read('/etc/hosts');
+          $fs->open('/tmp/fstest', 'w')->write("some stuff\n");
+          $fs->open('/tmp/fstest', 'a')->write("more stuff\n");
+          $fs->copy('/etc/hosts', '/tmp/hosts');
+        }
         ?>
 
     Most of the action is happening inside the commonjs PHP classes.

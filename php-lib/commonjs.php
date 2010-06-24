@@ -8,9 +8,9 @@ class CommonJS {
         $r = NULL;
 
         switch ($module) {
-            case 'file':
-                require_once('commonjs-file.php');
-                $r = new CommonJS_file ();
+            case 'fs':
+                require_once('commonjs-fs.php');
+                $r = new CommonJS_fs ();
                 break;
 
             case 'xhr':
