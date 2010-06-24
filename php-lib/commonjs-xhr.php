@@ -56,6 +56,10 @@ class CommonJS_xhr_client {
     public function getResponseHeader ($header) {
         return $this->request->getResponseHeader($header);
     }
+
+    public function getAllResponseHeaders () {
+        return $this->request->AllResponseHeaders;
+    }
 }
 
 class CommonJS_xhr_request {
@@ -70,8 +74,11 @@ class CommonJS_xhr_request {
     private $curl        = NULL;
     private $xheaders    = array();
     private $respinfo    = array();
-    private $respheaders = array();
     private $response    = NULL;
+
+    public $rawhead            = NULL; // FIXME probably shouldn't be public
+    public $AllResponseHeaders = NULL; // FIXME probably shouldn't be public
+    public $respheaders        = array(); // FIXME probably shouldn't be public
 
     public function __construct ($arg) {
         $this->client   = $arg['client'];
@@ -100,11 +107,13 @@ class CommonJS_xhr_request {
     private function parse_response ($rawresp) {
         $this->respinfo = curl_getinfo($this->curl);
 
-        $rawhead = substr($rawresp, 0, $this->respinfo['header_size']);
+        $this->rawhead = substr($rawresp, 0, $this->respinfo['header_size']);
         $body = substr($rawresp, $this->respinfo['header_size']);
 
-        $hlines = preg_split('/[\r\n]+/', $rawhead, -1, PREG_SPLIT_NO_EMPTY);
+        $hlines = preg_split('/[\r\n]+/', $this->rawhead, -1, PREG_SPLIT_NO_EMPTY);
         $this->client->statusText = array_shift($hlines); // FIXME chomp?
+
+        $this->AllResponseHeaders = join("\r\n", $hlines);
 
         foreach ($hlines as $h) {
             $x = preg_split('/:\s+/', $h, 2);
