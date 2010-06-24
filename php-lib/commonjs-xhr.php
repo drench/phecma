@@ -27,6 +27,8 @@ class CommonJS_xhr_client {
     public  $xhr     = NULL; // FIXME name subject to change
     private $request = NULL;
 
+    public  $statusText = NULL; // FIXME should be read-only
+
     public function __construct ($arg) {
         $this->xhr = $arg['xhr'];
     }
@@ -102,7 +104,7 @@ class CommonJS_xhr_request {
         $body = substr($rawresp, $this->respinfo['header_size']);
 
         $hlines = preg_split('/[\r\n]+/', $rawhead, -1, PREG_SPLIT_NO_EMPTY);
-        $respline = array_shift($hlines); // FIXME save this?
+        $this->client->statusText = array_shift($hlines); // FIXME chomp?
 
         foreach ($hlines as $h) {
             $x = preg_split('/:\s+/', $h, 2);
@@ -123,7 +125,8 @@ class CommonJS_xhr_request {
         $rawresp = curl_exec($this->curl);
         $responseText = $this->parse_response($rawresp);
         $this->response = new CommonJS_xhr_response (array(
-            'request' => $this, 'responseText' => $responseText
+            'request'      => $this,
+            'responseText' => $responseText
         ));
         curl_close($this->curl);
         return $this->response;
