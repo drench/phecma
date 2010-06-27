@@ -1,10 +1,18 @@
 # Warning: nowhere near complete!
 # Large portions are still the same as ECMAVisitor!
 
-$SYMBOLS = {
-    'print' => 'echo',
-    'require' => 'CommonJS::_require'
-}
+require 'json'
+$SYMBOL_STACK = [
+    {
+        'function' => {
+            'print' => 'echo',
+            'require' => 'CommonJS::_require',
+            'RegExp' => 'PHECMA_RegExp'
+        },
+        'var' => {
+        }
+    }
+]
 
 module RKelly
     module Nodes
@@ -37,6 +45,7 @@ module RKelly
             end
 
             def visit_VarDeclNode(o)
+                $SYMBOL_STACK[-1]['var'][o.name] = o.name
                 "#{o.name}#{o.value ? o.value.accept(self) : nil}"
             end
 
@@ -60,8 +69,8 @@ module RKelly
             end
 
             def visit_ResolveNode(o)
-                if $SYMBOLS.has_key?(o.value)
-                    return $SYMBOLS[o.value]
+                if $SYMBOL_STACK[-1]['function'].has_key?(o.value) # FIXME
+                    return $SYMBOL_STACK[-1]['function'][o.value]
                 else
                     return '$' + o.value # FIXME add to symbol table?
                 end
@@ -105,10 +114,26 @@ module RKelly
             end
 
             def visit_FunctionDeclNode(o)
-                $SYMBOLS[o.value] = o.value
-                "#{indent}function #{o.value}(" +
-                    "#{o.arguments.map { |x| x.accept(self) }.join(', ')})" +
-                    "#{o.function_body.accept(self)}"
+                $SYMBOL_STACK[-1]['function'][o.value] = o.value # FIXME
+                $SYMBOL_STACK.push($SYMBOL_STACK[-1].dup)
+
+                clvar = $SYMBOL_STACK[-1]['var'].keys.map { |k| '&$' + k }.
+                    join(', ')
+
+                args = o.arguments.map { |x| x.accept(self) }
+                args.map { |var| var.sub(/^\$/, '') }.each { |var|
+                    $SYMBOL_STACK[-1]['var'][var] = var
+                }
+
+                fdn = "#{indent}function #{o.value}(" + args.join(', ') + ')'
+
+                if clvar.length > 0
+                    fdn += " use (#{clvar})"
+                end
+
+                fdn += " #{o.function_body.accept(self)}"
+
+                return fdn
             end
 
             def visit_ParameterNode(o)
@@ -117,7 +142,10 @@ module RKelly
 
             def visit_FunctionBodyNode(o)
                 @indent += 1
-                "{\n#{o.value.accept(self)}\n#{@indent -=1; indent}}"
+                fb = "{\n#{o.value.accept(self)}\n#{@indent -=1; indent}}"
+# fb += "/* SYMBOL STACK:\n" + $SYMBOL_STACK.to_json + "\n*/\n"
+                $SYMBOL_STACK.pop
+                return fb
             end
 
             def visit_BreakNode(o)
@@ -296,8 +324,15 @@ module RKelly
             end
 
             def visit_FunctionExprNode(o)
-                "#{o.value}(#{o.arguments.map { |x| x.accept(self) }.join(', ')}) " +
-                "#{o.function_body.accept(self)}"
+                $SYMBOL_STACK.push($SYMBOL_STACK[-1].dup)
+                clvar = $SYMBOL_STACK[-1]['var'].keys.map { |k| '&$' + k }.join(', ')
+
+                fen = "#{o.value}(#{o.arguments.map { |x| x.accept(self) }.join(', ')})"
+                if clvar.length > 0
+                    fen += " use (#{clvar})"
+                end
+                fen += " #{o.function_body.accept(self)}"
+                return fen
             end
 
             def visit_CommaNode(o)
