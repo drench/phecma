@@ -43,9 +43,8 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
 
 * ## Current state
 
-    Though only basic code will work (meaning many of ECMAScript's cool
-    functional programming features are still missing), it may be enough
-    to be useful.
+    Though only basic code will work (meaning some of ECMAScript's cool
+    features are still missing), it may be enough to be useful.
 
     I'm beginning to implement the http://commonjs.org/ standards.
 
@@ -101,7 +100,61 @@ Most of the heavy lifting courtesy of http://rubyforge.org/projects/rkelly/
 
     Most of the action is happening inside the commonjs PHP classes.
 
-    The generated code also depends on features that only exist in PHP 5.3+
-    (anonymous functions), which I know limits its utility.
-    But I think this has potential.
-    And you?
+    Anonymous functions and closures (mostly) work too! The big caveat is
+    phecma depends on features of PHP 5.3+ for these, which I know
+    limits its utility. One of the main reasons I started writing phecma
+    was because, even if PHP's closures are essentially the same, I like
+    the ECMAScript syntax for it a lot more.
+
+    Here's a version of a classic closure example, the "counter" maker:
+
+        function make_counter (n) {
+            var ctr = function () {
+                n++; // because ++n is buggy
+                return n;
+            };
+            return ctr;
+        }
+
+        var c = make_counter(15);
+        var d = make_counter(7);
+
+        // using '+' to concatenate strings doesn't work yet
+        print(c()); print("\t"); print(d()); print("\n");
+        print(c()); print("\t"); print(d()); print("\n");
+        print(c()); print("\t"); print(d()); print("\n");
+        print(c()); print("\t"); print(d()); print("\n");
+
+    PHP-ified:
+
+        <?php
+        require_once('./php-lib/phecma.php');
+        require_once('./php-lib/commonjs.php');
+        function make_counter($n) {
+          $ctr = function() use (&$n, &$ctr) {
+            $n++;
+            return($n);
+          };
+          return($ctr);
+        }
+        $c = make_counter(15);
+        $d = make_counter(7);
+        echo($c());
+        echo("\t");
+        echo($d());
+        echo("\n");
+        echo($c());
+        echo("\t");
+        echo($d());
+        echo("\n");
+        echo($c());
+        echo("\t");
+        echo($d());
+        echo("\n");
+        echo($c());
+        echo("\t");
+        echo($d());
+        echo("\n");
+        ?>
+
+    I think this has potential. And you?
