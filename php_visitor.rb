@@ -417,6 +417,15 @@ module RKelly
                 "new #{o.value.accept(self)}(#{o.arguments.accept(self)})"
             end
 
+            def visit_AddNode(o)
+                # FIXME only gets the operator right if there are constants
+                right = o.value.accept(self)
+                left = o.left.accept(self)
+                op = (o.value.is_a?(RKelly::Nodes::StringNode) ||
+                        o.left.is_a?(RKelly::Nodes::StringNode)) ?  '.' : '+'
+                "#{left} #{op} #{right}"
+            end
+
       private
             def indent; ' ' * @indent * 2; end
     end
