@@ -13,6 +13,7 @@ $SYMBOL_STACK = [
         }
     }
 ]
+$anon = 0
 
 module RKelly
     module Nodes
@@ -20,6 +21,12 @@ module RKelly
             def to_php
                 PHPVisitor.new.accept(self)
             end
+        end
+        class FunctionCallNode
+            attr_accessor :anon_function
+        end
+        class FunctionExprNode
+            attr_accessor :assigned
         end
     end
     module Visitors
@@ -50,6 +57,9 @@ module RKelly
             end
 
             def visit_AssignExprNode(o)
+                if o.value.is_a?(RKelly::Nodes::FunctionExprNode)
+                    o.value.assigned = true
+                end
                 " = #{o.value.accept(self)}"
             end
 
@@ -81,7 +91,7 @@ module RKelly
             end
 
             def visit_PrefixNode(o)
-                "#{o.value}$#{o.operand.accept(self)}"
+                "#{o.value}#{o.operand.accept(self)}"
             end
 
             def visit_BlockNode(o)
@@ -90,6 +100,18 @@ module RKelly
             end
 
             def visit_ExpressionStatementNode(o)
+
+# if this begins with a FunctionCallNode and ends with an ArgumentsNode,
+# FunctionCallNode does the $_ANONnnn(args); unset($_ANONnnn);
+                k = o.value.to_a
+
+                if k[0].respond_to?('anon_function')
+                    k[0].anon_function = 
+                        k[0].is_a?(RKelly::Nodes::FunctionCallNode) &&
+                        (! k[1].is_a?(RKelly::Nodes::ResolveNode)) &&
+                        k[-1].is_a?(RKelly::Nodes::ArgumentsNode)
+                end
+
                 "#{o.value.accept(self)};"
             end
 
@@ -98,7 +120,14 @@ module RKelly
             end
 
             def visit_FunctionCallNode(o)
-                "#{o.value.accept(self)}(#{o.arguments.accept(self)})"
+                fcn = o.value.accept(self)
+                arg = o.arguments.accept(self)
+
+                if o.anon_function
+                    return "#{fcn}; $_ANON#{$anon}(#{arg}); unset($_ANON#{$anon})"
+                else
+                    return "#{fcn}(#{arg})"
+                end
             end
 
             def visit_ArgumentsNode(o)
@@ -133,6 +162,8 @@ module RKelly
 
                 fdn += " #{o.function_body.accept(self)}"
 
+                $SYMBOL_STACK.pop
+
                 return fdn
             end
 
@@ -144,7 +175,7 @@ module RKelly
                 @indent += 1
                 fb = "{\n#{o.value.accept(self)}\n#{@indent -=1; indent}}"
 # fb += "/* SYMBOL STACK:\n" + $SYMBOL_STACK.to_json + "\n*/\n"
-                $SYMBOL_STACK.pop
+#                $SYMBOL_STACK.pop
                 return fb
             end
 
@@ -324,14 +355,30 @@ module RKelly
             end
 
             def visit_FunctionExprNode(o)
+# anonymous functions
+
+                fen = ''
+
+                if ! o.assigned
+                    $anon += 1
+                    fen += "$_ANON#{$anon} = "
+                end
+
                 $SYMBOL_STACK.push($SYMBOL_STACK[-1].dup)
                 clvar = $SYMBOL_STACK[-1]['var'].keys.map { |k| '&$' + k }.join(', ')
 
-                fen = "#{o.value}(#{o.arguments.map { |x| x.accept(self) }.join(', ')})"
+                fen += "#{o.value}(#{o.arguments.map { |x| x.accept(self) }.join(', ')})"
                 if clvar.length > 0
                     fen += " use (#{clvar})"
                 end
+
                 fen += " #{o.function_body.accept(self)}"
+                $SYMBOL_STACK.pop
+
+                if ! o.assigned
+                    # FIXME at one point we cared about this here
+                end
+
                 return fen
             end
 
