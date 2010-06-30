@@ -418,12 +418,7 @@ module RKelly
             end
 
             def visit_AddNode(o)
-                # FIXME only gets the operator right if there are constants
-                right = o.value.accept(self)
-                left = o.left.accept(self)
-                op = (o.value.is_a?(RKelly::Nodes::StringNode) ||
-                        o.left.is_a?(RKelly::Nodes::StringNode)) ?  '.' : '+'
-                "#{left} #{op} #{right}"
+                "PHECMA_adder(#{o.left.accept(self)},#{o.value.accept(self)})"
             end
 
       private
