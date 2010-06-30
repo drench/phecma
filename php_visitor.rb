@@ -135,7 +135,7 @@ module RKelly
             end
 
             def visit_StringNode(o)
-                o.value
+                "(new PHECMA_String(#{o.value}))"
             end
 
             def visit_NullNode(o)

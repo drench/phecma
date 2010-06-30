@@ -16,7 +16,9 @@ function PHECMA_adder () {
     return $sum;
 }
 
+require_once('phecma-object.php');
 require_once('phecma-math.php');
 require_once('phecma-regexp.php');
+require_once('phecma-string.php');
 
 ?>
