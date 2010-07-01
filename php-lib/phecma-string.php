@@ -9,7 +9,7 @@ class PHECMA_String extends PHECMA_Object {
             case 'length':
                 return strlen($this->value);
             default:
-                throw new Exception("unknown property $prop");
+                return parent::__get($prop);
         }
     }
 
@@ -37,8 +37,8 @@ class PHECMA_String extends PHECMA_Object {
         throw new Exception('unimplemented');
     }
 
-    public function match ($s) {
-        throw new Exception('unimplemented');
+    public function match ($regexp) {
+        return $regexp->exec($this->value);
     }
 
     public function quote ($s) {

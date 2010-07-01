@@ -7,7 +7,8 @@ $SYMBOL_STACK = [
         'function' => {
             'print' => 'echo',
             'require' => 'CommonJS::_require',
-            'RegExp' => 'PHECMA_RegExp'
+            'RegExp' => 'PHECMA_RegExp',
+            'String' => 'PHECMA_String',
         },
         'var' => {
         }
@@ -200,7 +201,9 @@ module RKelly
             end
 
             def visit_RegexpNode(o)
-                o.value
+                # FIXME deal with m[1] maybe containing single quotes
+                m = %r{^/(.*)/([a-z]*)$}.match(o.value)
+                "new PHECMA_RegExp('#{m[1]}', '#{m[2]}')"
             end
 
             def visit_DotAccessorNode(o)
