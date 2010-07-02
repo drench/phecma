@@ -125,7 +125,9 @@ module RKelly
                 arg = o.arguments.accept(self)
 
                 if o.anon_function
-                    return "#{fcn}; $_ANON#{$anon}(#{arg}); unset($_ANON#{$anon})"
+                    r = "#{fcn}; $_ANON#{$anon}(#{arg}); unset($_ANON#{$anon})"
+                    $anon -= 1
+                    return r
                 else
                     return "#{fcn}(#{arg})"
                 end
