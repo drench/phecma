@@ -17,6 +17,7 @@ function PHECMA_adder () {
 }
 
 require_once('phecma-object.php');
+require_once('phecma-array.php');
 require_once('phecma-math.php');
 require_once('phecma-regexp.php');
 require_once('phecma-string.php');

@@ -225,7 +225,7 @@ module RKelly
             end
 
             def visit_ArrayNode(o)
-                "array(#{o.value.map { |x| x ? x.accept(self) : '' }.join(', ')})"
+                "new PHECMA_Array(#{o.value.map { |x| x ? x.accept(self) : '' }.join(', ')})"
             end
 
             def visit_ElementNode(o)
