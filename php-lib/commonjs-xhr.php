@@ -93,7 +93,7 @@ class CommonJS_xhr_request {
     public function setRequestHeader ($header, $value) {
 // FIXME : not doing the required checks from:
 // http://wiki.commonjs.org/wiki/HTTP_Client/B#setRequestHeader.28.29
-        $this->xheaders[$header] = $value;
+        $this->xheaders["$header"] = "$value"; // must "stringify"
     }
 
     private function get_xheaders () {
