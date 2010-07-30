@@ -13,6 +13,11 @@ class CommonJS {
                 $r = new CommonJS_fs ();
                 break;
 
+            case 'jsgi':
+                require_once('commonjs-jsgi.php');
+                $r = new CommonJS_jsgi ();
+                break;
+
             case 'xhr':
                 require_once('commonjs-xhr.php');
                 $r = new CommonJS_xhr ();
