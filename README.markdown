@@ -115,7 +115,7 @@ Phecma is following the http://commonjs.org/ standards, as they are:
 
 * Filesystem operations are pretty much there too, though it's "lightly tested" to be generous. (see ./examples/filesystem.js)
 
-* Much of the JSGI infrastructure exists, but probably not enough to use just yet.
+* JSGI is far enough along to handle very basic requests (no POSTs yet even; see ./examples/jsgi.js)
 
 So
 --
