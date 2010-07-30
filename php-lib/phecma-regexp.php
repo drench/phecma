@@ -26,14 +26,22 @@ class PHECMA_RegExp {
 # FIXME
 # the arrays returned aren't the same format as js regexes
     public function exec ($subject) {
-        $matches = array();
+
         if ($this->global) {
-            preg_match_all($this->pattern, $subject, $matches);
+            $r = preg_match_all($this->pattern, $subject, $matches);
         }
         else {
-            preg_match($this->pattern, $subject, $matches);
+            $r = preg_match($this->pattern, $subject, $matches);
         }
-        return $matches;
+
+        if ($r) {
+            $mr = new PHECMA_Array ();
+            $mr->value = $matches[0]; // FIXME why?
+            return $mr;
+        }
+        else {
+            return false;
+        }
     }
 
     public function test ($subject) {
