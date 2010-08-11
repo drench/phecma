@@ -36,7 +36,9 @@ class PHECMA_RegExp {
 
         if ($r) {
             $mr = new PHECMA_Array ();
-            $mr->value = $matches[0]; // FIXME why?
+            foreach ($matches as $m) {
+                array_push($mr->value, $m[0]);
+            }
             return $mr;
         }
         else {
