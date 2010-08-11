@@ -28,7 +28,8 @@ But wait! RKelly depends on hoe and racc so if you don't have them yet...
     % sudo gem install racc
 
 Though you don't need a PHP installation to run the compliler, you need
-one to run the code it spits out (and the tests I haven't written yet).
+one to run the code it spits out. That should be obvious, right?
+
 Phecma's compiler and supporting libraries lean heavily on anonymous
 functions, and these did not appear in PHP until 5.3.0.
 I'm using PHP 5.3.2. Think you can get it to work on PHP < 5.3 ?
@@ -40,6 +41,18 @@ Finally! Let's get phecma so we can compile and run something:
     % cd phecma
     % ./phecma < ./examples/hello.js | php
     Hello world!
+
+If you have a js executable in your $PATH -- perhaps you've installed
+spidermonkey or Rhino -- give the test suite a try:
+
+    % ./run-tests
+    test/arithmetic.js .. ok
+    test/arrays.js .. ok
+    test/closures.js .. ok
+    test/concatstring.js .. ok
+    test/functions.js .. ok
+    test/printstring.js .. ok
+    test/regex.js .. ok
 
 Why?
 ----
