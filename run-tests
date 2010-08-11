@@ -1,0 +1,41 @@
+#!/bin/sh
+
+rc=0
+
+JS=`which js`
+
+if [ ! -x "$JS" ]; then
+    echo "Can't find a 'js' executable in your PATH; Can't without one!"
+    exit 111
+fi
+
+
+PHP=`which php`
+
+if [ ! -x "$PHP" ]; then
+    echo "Can't find a 'php' executable in your PATH! Can't test without one!"
+    exit 111
+fi
+
+PHPV=`php --version | head -n1 | grep '^PHP 5\.3\.'`
+
+if [ -z "$PHPV" ]; then
+    echo "$PHP is not version 5.3.x!" >> /dev/stderr
+    echo "We'll go ahead and test anyway..." >> /dev/stderr
+fi
+
+
+for JST in test/*.js; do
+    echo -n $JST ..
+    JSO=`js $JST`
+    PHO=`./phecma < $JST | php`
+    if [ "$JSO" = "$PHO" ]; then
+        echo ' ok'
+    else
+        echo ' NOT OK'
+        echo "  expected '$JSO'; got '$PHO'"
+        rc=111
+    fi
+done
+
+exit $rc
